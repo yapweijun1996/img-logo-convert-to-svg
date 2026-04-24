@@ -1,9 +1,3 @@
-
-# DESIGN.md
-
-````md
-# DESIGN.md
-
 # img-logo-convert-to-svg
 
 ## 1. Project Overview
@@ -99,7 +93,7 @@ The main flow should be:
 
 ```text
 Upload Image → Adjust Settings → Convert → Preview → Download
-````
+```
 
 Do not overload the user with too many advanced settings at the beginning.
 
@@ -188,10 +182,9 @@ Users should be able to adjust:
 
 ## 8.1 Included in MVP
 
-The first version should include:
+V1 MVP should be the smallest complete browser-only conversion loop. It should include:
 
 * Image upload
-* Drag and drop upload
 * Original image preview
 * Canvas image processing
 * Basic threshold control
@@ -201,6 +194,8 @@ The first version should include:
 * Copy SVG code
 * Reset button
 * Basic error handling
+
+V1 upload can be click-to-upload only. Drag and drop is intentionally deferred to V2.
 
 ---
 
@@ -213,6 +208,13 @@ The first version should not include:
 * Backend upload
 * AI logo redesign
 * Manual SVG path editor
+* Drag and drop upload
+* WEBP upload
+* Detail level control
+* Smoothness control
+* Invert color control
+* Background removal control
+* Fill color picker
 * Multi-user account system
 * Payment system
 * Full professional vector editor
@@ -279,12 +281,16 @@ Requirements:
 * Support PNG
 * Support JPG
 * Support JPEG
-* Optional: support WEBP
-* Support drag and drop
 * Support click to upload
 * Show file name after upload
 * Show file size
 * Show warning if image is too large
+
+V1 decision:
+
+* WEBP is not included in MVP.
+* Drag and drop is not included in MVP.
+* Both can be added in V2 after the core conversion loop is stable.
 
 Accepted file types:
 
@@ -292,7 +298,6 @@ Accepted file types:
 image/png
 image/jpeg
 image/jpg
-image/webp
 ```
 
 Recommended file size limit:
@@ -576,7 +581,7 @@ Behavior:
 Message:
 
 ```text
-Unsupported file type. Please upload PNG, JPG, JPEG, or WEBP.
+Unsupported file type. Please upload PNG, JPG, or JPEG.
 ```
 
 ---
@@ -626,6 +631,14 @@ MVP should use:
 Optional library:
 
 * ImageTracer.js
+
+Dependency policy:
+
+* V1 must not load tracing code from a CDN at runtime.
+* If ImageTracer.js is used, it must be vendored locally or bundled into the app.
+* Third-party library license must be documented before release.
+* Browser network requests must not include uploaded image data.
+* The app must still work when opened locally without a backend.
 
 ---
 
@@ -1022,6 +1035,10 @@ Features:
 * Download SVG
 * Copy SVG code
 * Threshold setting
+* Reset
+* Invalid file type error
+* File size warning or rejection
+* Local-only processing
 
 ---
 
@@ -1039,6 +1056,7 @@ Features:
 * Invert toggle
 * Background remove
 * Fill color picker
+* WEBP upload
 * Better empty states
 * Better error messages
 
@@ -1079,7 +1097,43 @@ The MVP is considered complete when:
 
 ---
 
-## 27. Non-Goals
+## 27. Test Strategy
+
+V1 should include a manual and automated smoke-test checklist before release.
+
+### 27.1 Functional Tests
+
+* Upload accepts PNG, JPG, and JPEG files.
+* Upload rejects WEBP, SVG, PDF, and text files with a clear error.
+* Upload rejects or warns for files larger than 5 MB.
+* Original preview preserves aspect ratio.
+* Threshold setting changes the generated SVG output.
+* Convert produces valid SVG markup with `xmlns` and `viewBox`.
+* Empty or low-contrast images show the empty-result error.
+* Download file name is derived from the original file name.
+* Copy SVG code works through Clipboard API.
+* Copy SVG code has a fallback if Clipboard API permission fails.
+* Reset clears uploaded image, SVG preview, messages, and settings.
+
+### 27.2 Privacy and Runtime Tests
+
+* The app runs from static files with no backend.
+* Conversion still works when the network is disabled after page load.
+* No request sends uploaded file name, file bytes, image data, or generated SVG to a server.
+* No CDN dependency is required at runtime for V1.
+
+### 27.3 Browser Smoke Tests
+
+Smoke test the MVP flow in:
+
+* Chrome
+* Edge
+* Firefox
+* Safari, when available
+
+---
+
+## 28. Non-Goals
 
 This project does not aim to:
 
@@ -1092,7 +1146,7 @@ This project does not aim to:
 
 ---
 
-## 28. Key Risk
+## 29. Key Risk
 
 The main risk is user expectation.
 
@@ -1107,7 +1161,7 @@ Not ideal for photos, gradients, shadows, or blurry images.
 
 ---
 
-## 29. Recommended MVP Implementation Strategy
+## 30. Recommended MVP Implementation Strategy
 
 Start with the easiest working version:
 
@@ -1119,16 +1173,16 @@ ImageTracer.js or embedded tracing logic
 Download generated SVG
 ```
 
+For V1, prefer embedded tracing logic or vendored local tracing code. Do not use a runtime CDN dependency.
+
 Do not start with backend, AI, account system, or complex editor.
 
 The first goal is to prove the conversion flow works.
 
 ---
 
-## 30. Final Product Statement
+## 31. Final Product Statement
 
 `img-logo-convert-to-svg` is a private, browser-only logo vectorizer that helps users convert simple PNG/JPG logos into scalable SVG files with preview, adjustment, and export tools.
 
 The product should be simple, honest, fast, and practical.
-
-````
